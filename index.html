@@ -4,8 +4,8 @@
 <meta name="theme-color" content="#0E2742">
 <meta name="description" content="Paste the daily export program messages and get a one-page summary image.">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/logo-192.png">
-<link rel="apple-touch-icon" href="icons/logo-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="logo-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Export Report">
@@ -71,16 +71,16 @@ button{min-height:40px}
 }
 </style></head><body>
 <div class="top"><div><h1>Export Program Report Maker</h1><button id="inst" style="display:none;margin-top:6px;min-height:34px;padding:4px 12px">Install app</button><small>Enter the day’s program, get the summary image</small></div>
-<div class="acts"><button id="dl">Download PNG</button><button class="sec" id="sh">Share</button><button class="sec" id="reset">New day</button></div></div>
+<div class="acts"><button id="dl">Download PNG</button><button class="sec" id="sh">Share</button><button class="sec" id="reset">Reset all</button></div></div>
 <div class="tabs"><button class="on" data-tab="in" id="tin">1. Paste &amp; check</button><button data-tab="out" id="tout">2. Image</button></div>
 <div class="wrap" data-tab="in">
 <div class="inp">
  <div class="card"><h2>Paste WhatsApp text (optional)</h2>
   <textarea id="paste" placeholder="Paste the “Export Program for Today …” messages here. Several programs can be pasted together."></textarea>
-  <div style="margin-top:8px"><button id="parse">Read pasted text</button></div><p class="hint" id="pmsg">Fills the form automatically and checks it against the totals in your messages. You can still edit anything.</p></div>
+  <div style="margin-top:8px"><button id="parse">Read pasted text</button> <button class="sec" style="color:var(--ink)" id="reset2">Reset all</button></div><p class="hint" id="pmsg">Fills the form automatically and checks it against the totals in your messages. You can still edit anything.</p></div>
  <div class="card"><h2>Data check</h2><div id="chk"></div></div>
  <div class="card"><h2>Basic details</h2>
-  <div class="g2"><div><label>Exporter</label><input data-b="exporter"></div><div><label>Location</label><input data-b="location"></div>
+  <div class="g2"><div><label>Exporter</label><input data-b="exporter"></div><div><label>Factory address</label><input data-b="location"></div>
   <div><label>Program date</label><input type="date" data-b="programDate"></div><div><label>Default buyer</label><input data-b="buyer"></div>
   <div><label>Default depot</label><input data-b="depot"></div></div>
   <div style="margin-top:10px"><label>Known depots (comma separated). A depot not in this list is flagged.</label><input data-b="depots"></div>
@@ -96,12 +96,13 @@ button{min-height:40px}
 <script>
 (function(){
 var KEY="exportReportV1";
-var DEF={exporter:"Afl & Nhk",location:"Bokran, Monipur",programDate:"2026-11-04",buyer:"Primark",depot:"KDS",programs:[
+var DEF={exporter:"Afl & Nhk",location:"Monipur, Bhabanipur, Gazipur Sadar, Gazipur – 1740",programDate:"2026-11-04",buyer:"Primark",depot:"KDS",programs:[
 {date:"2026-11-05",mer:"Abu Taleb",com:"Golam Mostofa",erps:[{no:"20",fac:"AST",cbm:"6.73"},{no:"21",fac:"AST",cbm:"1.16"},{no:"56",fac:"AST",cbm:"109.67"},{no:"57",fac:"AST",cbm:"127.80"}],cargos:[{name:"Salim Cargo",n:"3",ft:"23"},{name:"Shahjoki",n:"4",ft:"23"},{name:"New JS",n:"2",ft:"23"}]},
 {date:"2026-11-06",mer:"Abu Taleb",com:"Rezul Karim",erps:[{no:"76",fac:"AST",cbm:"16.91"}],cargos:[{name:"Salim Cargo",n:"1",ft:"23"}]},
 {date:"2026-11-07",mer:"Sourov",com:"Golam Mostofa",erps:[{no:"18",fac:"Well-lord",cbm:"207.10"}],cargos:[{name:"Salim Cargo",n:"5",ft:"23"},{name:"Shahjoki",n:"2",ft:"23"},{name:"New JS",n:"1",ft:"14"}]}]};
 var st;try{st=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!st||!st.programs)st=JSON.parse(JSON.stringify(DEF));
+if(st.location==="Bokran"+", Monipur")st.location="Monipur, Bhabanipur, Gazipur Sadar, Gazipur – 1740";
 if(!st.depots||!st.depots.length)st.depots=["KDS","SAPL","SML","BM","INCONTRADE"];
 function depList(v){return String(v||"").split(/[,\s]+/).map(function(x){return x.trim().toUpperCase()}).filter(Boolean)}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
@@ -148,7 +149,8 @@ document.addEventListener("click",function(ev){
  save();renderForm();draw();
 });
 $("addp").onclick=function(){st.programs.push({date:"",mer:"",com:"",erps:[{no:"",fac:"",cbm:""}],cargos:[{name:"",n:"",ft:"23"}]});save();renderForm();draw()};
-$("reset").onclick=function(){if(!arm(this,"Press again to clear"))return;pw=[];st={exporter:st.exporter,location:st.location,programDate:"",buyer:st.buyer,depot:st.depot,depots:st.depots,programs:[]};save();renderForm();draw()};
+function resetAll(){pw=[];st={exporter:st.exporter,location:st.location,programDate:"",buyer:st.buyer,depot:st.depot,depots:st.depots,programs:[]};$("paste").value="";$("pmsg").textContent="Cleared. Paste the new messages above and press Read pasted text.";$("msg").textContent="";save();renderForm();draw();$("paste").focus()}
+$("reset").onclick=function(){if(arm(this,"Tap again to clear all"))resetAll()};$("reset2").onclick=resetAll;
 
 /* ---------- parser ---------- */
 function toISO(s){var m=/(\d{1,2})[-\s\/]([A-Za-z]{3})[a-z]*[-\s\/,]*(\d{4})/.exec(s||"");if(!m)return"";var i=MON.indexOf(m[2][0].toUpperCase()+m[2].slice(1,3).toLowerCase());return i<0?"":m[3]+"-"+("0"+(i+1)).slice(-2)+"-"+("0"+m[1]).slice(-2)}
@@ -286,14 +288,15 @@ function draw(){
  ctx.fillStyle=NAVY;ctx.fillRect(0,0,W,226);
  ctx.fillStyle="#143559";for(var i=0;i<14;i++){var x=700+i*28;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x+14,0);ctx.lineTo(x-46,226);ctx.lineTo(x-60,226);ctx.fill()}
  ctx.fillStyle=AMB;ctx.fillRect(0,218,W,8);
- tx("EXPORT PROGRAM",50,24,fn(900,52),WH);
- var from=(st.exporter?"From "+st.exporter:"")+(st.exporter&&st.location?"  |  ":"")+(st.location||"");
- if(from)tx(from,50,88,fit(from,980,30,800,18),AMB);
- tx("Daily dispatch summary"+(st.programDate?"  |  Program date "+fdate(st.programDate):""),50,128,fn(500,22),"#B9C7DA");
+ tx("EXPORT PROGRAM",50,16,fn(900,50),WH);
+ var from=st.exporter?"From "+st.exporter:"";
+ if(from)tx(from,50,76,fit(from,980,30,800,18),AMB);
+ if(st.location)tx(st.location,50,116,fit(st.location,980,19,500,12),"#DCE6F7");
+ tx("Daily dispatch summary"+(st.programDate?"  |  Program date "+fdate(st.programDate):""),50,142,fn(500,19),"#B9C7DA");
  var px=50;
  var bl=T.buyers.length?T.buyers:(st.buyer?[st.buyer]:[]),dl=T.deps.map(function(d){return d.name}).filter(function(x){return x!="-"});if(!dl.length&&st.depot)dl=[st.depot.toUpperCase()];
- var bt=bl.join(" + ").toUpperCase();if(bt){var bf=fit(bt,470,21,800,13),bw=tw(bt,bf)+48;rr(px,164,bw,44,22,AMB);tx(bt,px+bw/2,186,bf,NAVY,"center","middle");px+=bw+14}
- var dt=dl.length?"Depot"+(dl.length>1?"s":"")+": "+dl.join(", "):"";if(dt){var df=fit(dt,W-50-px-24,21,700,13),dw=tw(dt,df)+48;rr(px,164,dw,44,22,null,WH,2);tx(dt,px+dw/2,186,df,WH,"center","middle")}
+ var bt=bl.join(" + ").toUpperCase();if(bt){var bf=fit(bt,470,21,800,13),bw=tw(bt,bf)+48;rr(px,170,bw,40,20,AMB);tx(bt,px+bw/2,190,bf,NAVY,"center","middle");px+=bw+14}
+ var dt=dl.length?"Depot"+(dl.length>1?"s":"")+": "+dl.join(", "):"";if(dt){var df=fit(dt,W-50-px-24,21,700,13),dw=tw(dt,df)+48;rr(px,170,dw,40,20,null,WH,2);tx(dt,px+dw/2,190,df,WH,"center","middle")}
  var K=[[cbm(T.vol),"CBM total volume",AMB],[String(T.cg),"cargos (trucks)",BLUE],[String(T.erps),"ERP numbers",TEAL]],cw=(W-140)/3,kx=50;
  K.forEach(function(k){rr(kx,244,cw,104,20,WH);rr(kx,244,9,104,4.5,k[2]);tx(k[0],kx+28,254,fit(k[0],cw-40,50,900,30),INK);tx(k[1],kx+28,312,fn(600,20),MUT);kx+=cw+20});
  tx("Hand-over schedule",50,368,fn(800,26),INK);
@@ -342,7 +345,7 @@ function draw(){
  });
  if(dsH){tx("Depot-wise volume"+(T.buyers.length>1?" (with buyer)":""),50,dsY,fn(800,26),INK);rr(50,dsY+36,W-100,16,8,"#E7ECF3");if(T.vol)seg(50,dsY+36,W-100,16,T.deps.map(function(d){return d.vol/T.vol}),DPAL);
   T.deps.forEach(function(d,i){var ry=dsY+66+72*i,col=DPAL[i%DPAL.length],rx=W-64;rr(50,ry,W-100,64,16,WH);rr(50,ry,9,64,4.5,col);var w=pl(pct(T.vol?d.vol/T.vol*100:0),rx,ry+32,col,col==AMB?NAVY:WH,17);tx(cbm(d.vol)+" CBM  |  "+d.cg+" cargo"+(d.cg==1?"":"s"),rx-w-14,ry+32,fn(700,20),INK,"right","middle");tx(d.name,78,ry+9,fit(d.name,260,22,700,15),INK);var bs=d.buyers.join(", ");tx(bs,78,ry+38,fit(bs,380,16,500,12),MUT)})}
- var foot=[st.exporter&&(st.exporter+(st.location?", "+st.location:"")),bl.join(" + "),dl.length&&(dl.join(", ")+" Depot"),"Total "+cbm(T.vol)+" CBM",T.cg+" Cargos"].filter(Boolean).join("  |  ");
+ var foot=[st.exporter,bl.join(" + "),dl.length&&(dl.join(", ")+" Depot"),"Total "+cbm(T.vol)+" CBM",T.cg+" Cargos"].filter(Boolean).join("  |  ");
  tx(foot,W/2,H-28,fit(foot,980,17,500,12),MUT,"center","middle");
  $("wa").value=waText(C);renderChecks(C);
 }
