@@ -1,201 +1,401 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Export Program Report Maker</title>
-<meta name="description" content="Enter the day's program, get the summary image">
-<meta name="theme-color" content="#150d2b">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-<link rel="apple-touch-icon" href="icons/logo-192.png">
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E2742">
+<meta name="description" content="Paste the daily export program messages and get a one-page summary image.">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/logo-192.png">
+<link rel="apple-touch-icon" href="icons/logo-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Export Report">
+<title>Export Program Report Maker</title>
 <style>
-:root{--bg:#f4f2fb;--card:#fff;--ink:#1b1233;--mute:#675f80;--line:#ddd8ee;--deep:#150d2b;--teal:#12b98c;--blue:#2f6df6;--bad:#c62f4b;--ok:#0c8a68}
-@media (prefers-color-scheme:dark){:root{--bg:#0f0920;--card:#1a1233;--ink:#f1eefc;--mute:#a69fc4;--line:#2f2551;--ok:#33d6a6;--bad:#ff7a93}}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#EEF1F6;--card:#fff;--ink:#16202E;--mut:#6B778A;--line:#DDE3EC;--inp:#F6F8FB;--acc:#F6A21E;--navy:#0E2742;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B1624;--card:#13243A;--ink:#E8EEF7;--mut:#93A4BB;--line:#25384F;--inp:#0E1C2E;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0B1624;--card:#13243A;--ink:#E8EEF7;--mut:#93A4BB;--line:#25384F;--inp:#0E1C2E;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
-html{padding-top:env(safe-area-inset-top,0)}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-header{background:var(--deep);color:#fff;padding:20px 16px}
-.wrap{max-width:860px;margin:0 auto}
-.brand{display:flex;align-items:center;gap:14px}
-.brand img{width:64px;height:64px}
-h1{font-size:1.4rem;margin:0;line-height:1.2}
-header p{margin:2px 0 0;color:#c9c0ea}
-main{max-width:860px;margin:0 auto;padding:16px 16px calc(40px + env(safe-area-inset-bottom,0))}
-section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
-h2{font-size:1.05rem;margin:0 0 8px}
-.hint{color:var(--mute);font-size:.9rem;margin:0 0 10px}
-label{display:block;font-size:.85rem;color:var(--mute);margin-bottom:4px}
-input,textarea{width:100%;font:inherit;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:9px 10px}
-input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
-textarea{min-height:130px;resize:vertical}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-button{font:inherit;font-weight:600;border:0;border-radius:8px;padding:10px 16px;cursor:pointer;color:#fff;background:linear-gradient(90deg,var(--teal),var(--blue))}
-button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
-.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.table{overflow-x:auto}
-table{border-collapse:collapse;width:100%;min-width:480px}
-th,td{padding:4px;text-align:left}
-th{font-size:.85rem;color:var(--mute);font-weight:500}
-td button{padding:8px 10px}
-.check{padding:10px 12px;border-radius:8px;border:1px solid var(--line);margin-top:4px}
-.check.ok{color:var(--ok)}.check.bad{color:var(--bad)}
-canvas{width:100%;height:auto;border-radius:10px;border:1px solid var(--line);margin-top:12px;display:block}
-</style>
-</head>
-<body>
-<header><div class="wrap brand">
-  <img src="icons/logo-192.png" alt="Logo" width="64" height="64">
-  <div><h1>Export Program Report Maker</h1><p>Enter the day’s program, get the summary image</p></div>
-</div></header>
-<main>
-<section>
-  <h2>Paste WhatsApp text (optional)</h2>
-  <p class="hint">Fills the form automatically and checks it against the totals in your messages. You can still edit anything.</p>
-  <textarea id="paste" placeholder="Exporter: ABC Traders&#10;Location: Chattogram&#10;Date: 05/11/2026&#10;Buyer: XYZ Ltd&#10;Depot: Depot 1&#10;TRK-101 - Rice - 25&#10;TRK-102 - Rice - 30&#10;Total: 55"></textarea>
-  <div class="row"><button id="fill">Fill the form</button><button class="ghost" id="clear">Clear all</button></div>
-</section>
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.top{background:var(--navy);color:#fff;padding:16px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border-bottom:4px solid var(--acc)}
+.top h1{margin:0;font-size:20px;font-weight:800}
+.top small{display:block;color:#B9C7DA;font-weight:500}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:9px 14px;cursor:pointer;background:var(--acc);color:var(--navy)}
+button.sec{background:transparent;color:inherit;border:1.5px solid currentColor}
+button.x{padding:6px 10px;background:transparent;color:var(--mut);border:1px solid var(--line)}
+.wrap{display:grid;gap:20px;padding:20px;max-width:1280px;margin:0 auto;grid-template-columns:minmax(0,1fr)}
+@media(min-width:980px){.wrap{grid-template-columns:minmax(0,480px) minmax(0,1fr);align-items:start}.prev{position:sticky;top:12px}}
+.card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:16px;border:1px solid var(--line)}
+h2{margin:0 0 10px;font-size:16px;font-weight:800}
+label{display:block;font-size:12px;font-weight:600;color:var(--mut);margin-bottom:3px}
+input,textarea{width:100%;font:inherit;color:var(--ink);background:var(--inp);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+textarea{min-height:90px;resize:vertical}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row{display:grid;gap:8px;align-items:end;margin-bottom:8px}
+.erp{grid-template-columns:70px 1fr 90px 36px}
+.cg{grid-template-columns:1fr 60px 60px 36px}
+.prog{border:2px solid var(--line);border-radius:14px;padding:12px;margin-bottom:14px}
+.hint{color:var(--mut);font-size:13px;margin:6px 0 0}
+.prev img,.prev canvas{width:100%;height:auto;display:block;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.18)}
+.ck{padding:6px 10px;border-radius:8px;margin-bottom:6px;font-size:13px}.ck.err{background:#FDE8E8;color:#9B1C1C}.ck.warn{background:#FFF4DB;color:#7A4B00}.ck.ok{background:#E3F6EA;color:#14653A}.ck.note{background:var(--inp);color:var(--mut)}
+.msg{font-size:13px;color:var(--mut);min-height:18px;margin:8px 0}
 
-<section>
-  <h2>Data check</h2>
-  <div id="check" class="check">Nothing to check yet.</div>
-</section>
-
-<section>
-  <h2>Basic details</h2>
-  <div class="grid">
-    <div><label for="exporter">Exporter</label><input id="exporter"></div>
-    <div><label for="location">Location</label><input id="location"></div>
-    <div><label for="date">Program date</label><input id="date" type="date"></div>
-    <div><label for="buyer">Buyer</label><input id="buyer"></div>
-    <div><label for="depot">Depot</label><input id="depot"></div>
-  </div>
-</section>
-
-<section>
-  <h2>Program lines</h2>
-  <div class="table"><table>
-    <thead><tr><th>Vehicle</th><th>Item</th><th>Quantity</th><th></th></tr></thead>
-    <tbody id="rows"></tbody>
-  </table></div>
-  <div class="row"><button class="ghost" id="add">Add line</button></div>
-</section>
-
-<section>
-  <h2>Summary image</h2>
-  <div class="row" style="margin-top:0"><button id="make">Make image</button><button class="ghost" id="dl">Download PNG</button></div>
-  <canvas id="cv" width="1080" height="1080" aria-label="Summary image preview"></canvas>
-</section>
-
-<section>
-  <h2>WhatsApp text version</h2>
-  <textarea id="out" readonly></textarea>
-  <div class="row"><button id="copy">Copy text</button></div>
-</section>
-</main>
-
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.tabs{display:none}
+input,textarea,select{font-size:16px}
+button{min-height:40px}
+.cvw{overflow:auto;border-radius:14px}
+.cvw canvas{cursor:zoom-in}
+.prev .cvw.z canvas{width:220%;max-width:none;cursor:zoom-out}
+@media(max-width:979px){
+ body{padding-bottom:90px}
+ .top{padding:12px 14px}.top h1{font-size:17px}
+ .wrap{padding:12px;gap:12px}.card{padding:14px}
+ .wrap[data-tab="in"] .prev{display:none}.wrap[data-tab="out"] .inp{display:none}
+ .tabs{display:flex;gap:8px;position:sticky;top:0;z-index:15;padding:8px 12px;background:var(--bg)}
+ .tabs button{flex:1;min-height:46px;background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+ .tabs button.on{background:var(--acc);color:var(--navy);border-color:var(--acc)}
+ .acts{position:fixed;left:0;right:0;bottom:0;z-index:20;flex-wrap:nowrap;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--navy)}
+ .acts button{flex:1;min-height:46px;white-space:normal;line-height:1.2;padding:8px 6px}
+}
+@media(max-width:560px){
+ .g2{grid-template-columns:1fr}
+ .g3{grid-template-columns:1fr 1fr}.g3>:nth-child(3){grid-column:1/-1}
+ .g4{grid-template-columns:70px 1fr 44px}
+ .g4>:nth-child(1){grid-column:1;grid-row:1}.g4>:nth-child(2){grid-column:2;grid-row:1}.g4>:nth-child(5){grid-column:3;grid-row:1}
+ .g4>:nth-child(3){grid-column:1/-1;grid-row:2}.g4>:nth-child(4){grid-column:1/-1;grid-row:3}
+ .erp{grid-template-columns:1fr 1fr 44px}
+ .erp>:nth-child(2){grid-column:1/-1;grid-row:2}.erp>:nth-child(3){grid-column:2;grid-row:1}.erp>:nth-child(4){grid-column:3;grid-row:1}
+ .cg{grid-template-columns:1fr 1fr 44px}
+ .cg>:nth-child(1){grid-column:1/-1;grid-row:1}.cg>:nth-child(2){grid-row:2}.cg>:nth-child(3){grid-row:2}.cg>:nth-child(4){grid-row:2}
+}
+</style></head><body>
+<div class="top"><div><h1>Export Program Report Maker</h1><button id="inst" style="display:none;margin-top:6px;min-height:34px;padding:4px 12px">Install app</button><small>Enter the day’s program, get the summary image</small></div>
+<div class="acts"><button id="dl">Download PNG</button><button class="sec" id="sh">Share</button><button class="sec" id="reset">New day</button></div></div>
+<div class="tabs"><button class="on" data-tab="in" id="tin">1. Paste &amp; check</button><button data-tab="out" id="tout">2. Image</button></div>
+<div class="wrap" data-tab="in">
+<div class="inp">
+ <div class="card"><h2>Paste WhatsApp text (optional)</h2>
+  <textarea id="paste" placeholder="Paste the “Export Program for Today …” messages here. Several programs can be pasted together."></textarea>
+  <div style="margin-top:8px"><button id="parse">Read pasted text</button></div><p class="hint" id="pmsg">Fills the form automatically and checks it against the totals in your messages. You can still edit anything.</p></div>
+ <div class="card"><h2>Data check</h2><div id="chk"></div></div>
+ <div class="card"><h2>Basic details</h2>
+  <div class="g2"><div><label>Exporter</label><input data-b="exporter"></div><div><label>Location</label><input data-b="location"></div>
+  <div><label>Program date</label><input type="date" data-b="programDate"></div><div><label>Default buyer</label><input data-b="buyer"></div>
+  <div><label>Default depot</label><input data-b="depot"></div></div>
+  <div style="margin-top:10px"><label>Known depots (comma separated). A depot not in this list is flagged.</label><input data-b="depots"></div>
+  <p class="hint">Each program uses the buyer and depot written in its own message. The defaults are used only when a program has none.</p></div>
+ <div id="progs"></div>
+ <button id="addp">+ Add hand-over date</button>
+</div>
+<div class="prev"><div class="cvw" id="cvw"><canvas id="cv"></canvas></div><p class="hint" id="zh">Tap the image to zoom in or out.</p><p class="msg" id="msg"></p>
+ <div class="card"><h2>WhatsApp text version</h2><textarea id="wa" readonly style="min-height:200px"></textarea>
+ <div style="margin-top:8px"><button id="cp">Copy text</button></div></div></div>
+</div>
+<datalist id="srcs"><option value="Salim Cargo"><option value="Shahjoki"><option value="New JS"></datalist>
 <script>
-const $ = id => document.getElementById(id);
-const F = ["exporter","location","date","buyer","depot"];
-let declaredTotal = null;
-const logo = new Image(); logo.src = "icons/logo-192.png";
+(function(){
+var KEY="exportReportV1";
+var DEF={exporter:"Afl & Nhk",location:"Bokran, Monipur",programDate:"2026-11-04",buyer:"Primark",depot:"KDS",programs:[
+{date:"2026-11-05",mer:"Abu Taleb",com:"Golam Mostofa",erps:[{no:"20",fac:"AST",cbm:"6.73"},{no:"21",fac:"AST",cbm:"1.16"},{no:"56",fac:"AST",cbm:"109.67"},{no:"57",fac:"AST",cbm:"127.80"}],cargos:[{name:"Salim Cargo",n:"3",ft:"23"},{name:"Shahjoki",n:"4",ft:"23"},{name:"New JS",n:"2",ft:"23"}]},
+{date:"2026-11-06",mer:"Abu Taleb",com:"Rezul Karim",erps:[{no:"76",fac:"AST",cbm:"16.91"}],cargos:[{name:"Salim Cargo",n:"1",ft:"23"}]},
+{date:"2026-11-07",mer:"Sourov",com:"Golam Mostofa",erps:[{no:"18",fac:"Well-lord",cbm:"207.10"}],cargos:[{name:"Salim Cargo",n:"5",ft:"23"},{name:"Shahjoki",n:"2",ft:"23"},{name:"New JS",n:"1",ft:"14"}]}]};
+var st;try{st=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!st||!st.programs)st=JSON.parse(JSON.stringify(DEF));
+if(!st.depots||!st.depots.length)st.depots=["KDS","SAPL","SML","BM","INCONTRADE"];
+function depList(v){return String(v||"").split(/[,\s]+/).map(function(x){return x.trim().toUpperCase()}).filter(Boolean)}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")}
+function arm(btn,msg){if(btn._a){btn._a=0;btn.textContent=btn._t;clearTimeout(btn._h);return true}btn._t=btn.textContent;btn._a=1;btn.textContent=msg;btn._h=setTimeout(function(){btn._a=0;btn.textContent=btn._t},5000);return false}
+var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function dparts(iso){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||"");return m?{y:m[1],m:+m[2]-1,d:m[3]}:null}
+function fdate(iso){var p=dparts(iso);return p?p.d+"-"+MON[p.m]+"-"+p.y:(iso||"")}
+function num(v){var n=parseFloat(v);return isNaN(n)?0:n}
+function pct(v){return (Math.round(v*10)/10)+"%"}
+function cbm(v){return v.toFixed(2)}
 
-function addRow(v="",i="",q=""){
-  const tr = document.createElement("tr");
-  tr.innerHTML = '<td><input aria-label="Vehicle"></td><td><input aria-label="Item"></td><td><input aria-label="Quantity" inputmode="decimal"></td><td><button class="ghost" aria-label="Remove line">Remove</button></td>';
-  const [a,b,c] = tr.querySelectorAll("input"); a.value=v; b.value=i; c.value=q;
-  tr.querySelector("button").onclick = () => { tr.remove(); refresh(); };
-  tr.addEventListener("input", refresh);
-  $("rows").appendChild(tr);
+/* ---------- form ---------- */
+function renderForm(){
+ document.querySelectorAll("[data-b]").forEach(function(el){el.value=el.dataset.b=="depots"?(st.depots||[]).join(", "):(st[el.dataset.b]||"")});
+ var h="";
+ st.programs.forEach(function(p,i){
+  h+='<div class="prog"><div class="g2" style="margin-bottom:10px"><div><label>Hand over date</label><input type="date" data-p="'+i+'.date" value="'+esc(p.date)+'"></div><div></div>'+
+  '<div><label>Buyer</label><input data-p="'+i+'.buyer" value="'+esc(p.buyer)+'" placeholder="'+esc(st.buyer)+'"></div><div><label>Depot</label><input data-p="'+i+'.depot" value="'+esc(p.depot)+'" placeholder="'+esc(st.depot)+'"></div>'+
+  '<div><label>Merchandiser</label><input data-p="'+i+'.mer" value="'+esc(p.mer)+'"></div><div><label>Commercial</label><input data-p="'+i+'.com" value="'+esc(p.com)+'"></div></div>'+((p.stVol||p.stCg)?'<p class="hint" style="margin:-4px 0 10px">Your pasted message said: '+esc(p.stVol||"?")+' CBM, '+esc(p.stCg||"?")+' cargos</p>':'');
+  p.erps.forEach(function(e,j){h+='<div class="row erp"><div><label>ERP no.</label><input data-p="'+i+'.erps.'+j+'.no" value="'+esc(e.no)+'"></div><div><label>LC</label><input data-p="'+i+'.erps.'+j+'.fac" value="'+esc(e.fac)+'"></div><div><label>CBM</label><input inputmode="decimal" data-p="'+i+'.erps.'+j+'.cbm" value="'+esc(e.cbm)+'"></div><button class="x" data-a="de:'+i+':'+j+'">✕</button></div>'});
+  h+='<button class="sec" style="color:var(--ink);margin-bottom:12px" data-a="ae:'+i+'">+ ERP</button>';
+  p.cargos.forEach(function(c,j){h+='<div class="row cg"><div><label>Cargo source</label><input list="srcs" data-p="'+i+'.cargos.'+j+'.name" value="'+esc(c.name)+'"></div><div><label>Cargos</label><input inputmode="numeric" data-p="'+i+'.cargos.'+j+'.n" value="'+esc(c.n)+'"></div><div><label>Feet</label><input inputmode="numeric" data-p="'+i+'.cargos.'+j+'.ft" value="'+esc(c.ft)+'"></div><button class="x" data-a="dc:'+i+':'+j+'">✕</button></div>'});
+  h+='<button class="sec" style="color:var(--ink)" data-a="ac:'+i+'">+ Cargo source</button> <button class="x" style="float:right" data-a="dp:'+i+'">Remove date</button></div>';
+ });
+ $("progs").innerHTML=h;
 }
-const rows = () => [...$("rows").children].map(tr => { const [v,i,q] = [...tr.querySelectorAll("input")].map(x=>x.value.trim()); return {v,i,q,n:parseFloat(q.replace(/,/g,""))}; }).filter(r => r.v||r.i||r.q);
-const num = n => Number.isInteger(n) ? String(n) : String(+n.toFixed(2));
+document.addEventListener("input",function(ev){
+ var t=ev.target;
+ if(t.dataset.b=="depots"){st.depots=depList(t.value)}else if(t.dataset.b){st[t.dataset.b]=t.value}
+ else if(t.dataset.p){var k=t.dataset.p.split("."),o=st.programs;for(var i=0;i<k.length-1;i++)o=o[k[i]];o[k[k.length-1]]=t.value}
+ else return;
+ save();draw();
+});
+document.addEventListener("click",function(ev){
+ var b=ev.target.closest("[data-a]");if(!b)return;
+ var a=b.dataset.a.split(":"),p=st.programs[a[1]];
+ if(a[0]=="ae")p.erps.push({no:"",fac:p.erps.length?p.erps[p.erps.length-1].fac:"",cbm:""});
+ if(a[0]=="de")p.erps.splice(a[2],1);
+ if(a[0]=="ac")p.cargos.push({name:"",n:"",ft:"23"});
+ if(a[0]=="dc")p.cargos.splice(a[2],1);
+ if(a[0]=="dp")st.programs.splice(a[1],1);
+ save();renderForm();draw();
+});
+$("addp").onclick=function(){st.programs.push({date:"",mer:"",com:"",erps:[{no:"",fac:"",cbm:""}],cargos:[{name:"",n:"",ft:"23"}]});save();renderForm();draw()};
+$("reset").onclick=function(){if(!arm(this,"Press again to clear"))return;pw=[];st={exporter:st.exporter,location:st.location,programDate:"",buyer:st.buyer,depot:st.depot,depots:st.depots,programs:[]};save();renderForm();draw()};
 
-function normDate(s){
-  let m = s.match(/(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/);
-  if(!m) return "";
-  let [,d,mo,y] = m; if(y.length==2) y = "20"+y;
-  return `${y}-${mo.padStart(2,"0")}-${d.padStart(2,"0")}`;
+/* ---------- parser ---------- */
+function toISO(s){var m=/(\d{1,2})[-\s\/]([A-Za-z]{3})[a-z]*[-\s\/,]*(\d{4})/.exec(s||"");if(!m)return"";var i=MON.indexOf(m[2][0].toUpperCase()+m[2].slice(1,3).toLowerCase());return i<0?"":m[3]+"-"+("0"+(i+1)).slice(-2)+"-"+("0"+m[1]).slice(-2)}
+function line(b,re){var m=re.exec(b);return m?m[1].trim():""}
+var pw=[],lastErr=0;
+function parseText(txt){
+ var parts=txt.split(/Export Program for Today/i),pre=parts.shift(),out=[],meta={},w=[];
+ if(!parts.length){w.push("No “Export Program for Today” heading was found, so nothing was read.");return{meta:meta,programs:out,warn:w}}
+ if(/ERP|CBM/i.test(pre))w.push("Text before the first “Export Program for Today” heading mentions ERP or CBM and was skipped. Please check it.");
+ parts.forEach(function(b,bi){
+  var hd=toISO(line(b,/Hand Over Date:\s*([^\n]+)/i)),nm=hd?fdate(hd):"Message "+(bi+1);
+  var pd=toISO(b.split("\n")[0]);if(pd)meta.programDate=pd;
+  var by=line(b,/Buyer:\s*([^\n]+)/i);if(by)meta.buyer=by.replace(/[^\w &.-]/g,"").trim();
+  var dp=line(b,/Depot:\s*([^\n]+)/i);if(dp)meta.depot=dp.replace(/[^\w &-]/g,"").trim();
+  if(!dp)w.push(nm+": no depot found in the message. The default depot will be used.");if(!by)w.push(nm+": no buyer found in the message. The default buyer will be used.");
+  var erpTxt=(/ERP Nos\.?\s*:([\s\S]*?)(?:Merchandiser|Commercial|Cargo Source|$)/i.exec(b)||[])[1]||"",erps=[],m;
+  var re=/(\d+)\s*(?:\(([^)]*)\))?\s*=\s*([\d.]+)\s*cbm/gi;
+  while((m=re.exec(erpTxt)))erps.push({no:m[1],fac:(m[2]||"").trim(),cbm:m[3]});
+  var seen=(erpTxt.match(/[\d.]+\s*cbm/gi)||[]).length;
+  if(!erps.length)w.push(nm+": no ERP lines could be read.");
+  else if(seen!==erps.length)w.push(nm+": "+seen+" CBM values were found in the ERP text but only "+erps.length+" ERP lines were read. Please check the ERP list.");
+  erpTxt.split("\n").forEach(function(l){l=l.trim();if(/[A-Za-z0-9]/.test(l)&&!/(\d+)\s*(?:\([^)]*\))?\s*=\s*[\d.]+\s*cbm/i.test(l))w.push(nm+": could not read this ERP line: “"+l+"”")});
+  var cgTxt=(/Cargo Source\s*:([\s\S]*)/i.exec(b)||[])[1]||"",cargos=[];
+  var rc=/([A-Za-z][A-Za-z.&' ]*?)\s*:\s*(\d+)\s*Cargos?\s*(?:\(\s*(\d+)\s*(?:Feet|Ft)?)?/gi;
+  while((m=rc.exec(cgTxt)))cargos.push({name:m[1].trim(),n:String(+m[2]),ft:m[3]||""});
+  var cs=(cgTxt.match(/\d+\s*cargos?/gi)||[]).length;
+  if(!cargos.length)w.push(nm+": no cargo source lines could be read.");
+  else if(cs!==cargos.length)w.push(nm+": "+cs+" cargo counts were found but only "+cargos.length+" cargo source lines were read. Please check.");
+  cgTxt.split("\n").forEach(function(l){l=l.trim();if(/[A-Za-z0-9]/.test(l)&&!/[A-Za-z][A-Za-z.&' ]*?\s*:\s*\d+\s*Cargos?/i.test(l))w.push(nm+": could not read this cargo line: “"+l+"”")});
+  out.push({date:hd,mer:line(b,/Merchandiser Team:\s*([^\n]+)/i).replace(/^Mr\.?\s*/i,""),com:line(b,/Commercial:\s*([^\n]+)/i).replace(/^Mr\.?\s*/i,""),stVol:line(b,/Total Volume:\s*([\d.]+)/i),stCg:line(b,/Total Cargos:\s*(\d+)/i),erps:erps,cargos:cargos,buyer:(by||"").replace(/[^\w &.-]/g,"").trim(),depot:(dp||"").replace(/[^\w &-]/g,"").trim().toUpperCase()});
+ });
+ return{meta:meta,programs:out,warn:w};
+}
+$("parse").onclick=function(){
+ var r=parseText($("paste").value);pw=r.warn;
+ if(!r.programs.length){$("pmsg").textContent="Nothing was read. Each message should start with “Export Program for Today”.";draw();return}
+ for(var k in r.meta)st[k]=r.meta[k];
+ var cd={},cb={};r.programs.forEach(function(p){if(p.depot)cd[p.depot]=(cd[p.depot]||0)+1;if(p.buyer)cb[p.buyer]=(cb[p.buyer]||0)+1});var md=Object.keys(cd).sort(function(a,b){return cd[b]-cd[a]})[0],mb=Object.keys(cb).sort(function(a,b){return cb[b]-cb[a]})[0];if(md)st.depot=md;if(mb)st.buyer=mb;
+ var nd=[];r.programs.forEach(function(p){var d=p.depot;if(d&&st.depots.map(key).indexOf(key(d))<0&&!st.depots.some(function(x){return lev(key(d),key(x))<=1})&&nd.indexOf(d)<0)nd.push(d)});
+ if(nd.length){st.depots=st.depots.concat(nd);pw.push("New depot detected: "+nd.join(", ")+". It was added to Known depots. Remove it there if it is a mistake.")}
+ var ne=0;r.programs.forEach(function(p){ne+=p.erps.length});
+ st.programs=r.programs;save();renderForm();draw();
+ $("pmsg").textContent="Read "+r.programs.length+" program(s) and "+ne+" ERP line(s). Please review the Data check.";
+};
+
+/* ---------- calc ---------- */
+function key(s){return String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"")}
+function lev(a,b){var d=[],i,j;for(i=0;i<=a.length;i++)d[i]=[i];for(j=1;j<=b.length;j++)d[0][j]=j;for(i=1;i<=a.length;i++)for(j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]==b[j-1]?0:1));return d[a.length][b.length]}
+function calc(){
+ var progs=st.programs.slice().sort(function(a,b){return (a.date||"9").localeCompare(b.date||"9")});
+ var T={vol:0,cg:0,erps:0,fac:[],src:[],notes:[],deps:[],buyers:[]},fm={},sm={},dpm={};
+ function reg(map,list,name,mk){var k=key(name),o=map[k];if(!o){o=mk(name);map[k]=o;list.push(o)}else if(o.name!==name){var t="“"+name+"” was treated as the same as “"+o.name+"”";if(T.notes.indexOf(t)<0)T.notes.push(t)}return o}
+ progs.forEach(function(p){
+  p.vol=0;p.cg=0;p.groups=[];var gm={};
+  p.erps.forEach(function(e){
+   var v=num(e.cbm);p.vol+=v;if(e.no||v)T.erps++;
+   var f=reg(fm,T.fac,(e.fac||"").trim()||"No LC",function(n){return{name:n,vol:0,erps:[]}});
+   f.vol+=v;if(e.no&&f.erps.indexOf(e.no)<0)f.erps.push(e.no);
+   var g=gm[f.name];if(!g){g={name:f.name,vol:0,items:[]};gm[f.name]=g;p.groups.push(g)}
+   g.vol+=v;g.items.push({no:e.no,v:v});
+  });
+  p.cargos.forEach(function(c){
+   var n=Math.round(num(c.n));p.cg+=n;var nm=(c.name||"").trim();if(!nm||!n)return;
+   var s=reg(sm,T.src,nm,function(x){return{name:x,n:0,sizes:{}}});s.n+=n;var ft=c.ft||"";s.sizes[ft]=(s.sizes[ft]||0)+n;
+  });
+  T.vol+=p.vol;T.cg+=p.cg;
+  p.by=(p.buyer||st.buyer||"").trim();p.dp=(p.depot||st.depot||"").trim().toUpperCase();
+  var dk=p.dp||"-",dd=dpm[dk];if(!dd){dd=dpm[dk]={name:dk,vol:0,cg:0,buyers:[]};T.deps.push(dd)}dd.vol+=p.vol;dd.cg+=p.cg;if(p.by&&dd.buyers.indexOf(p.by)<0)dd.buyers.push(p.by);if(p.by&&T.buyers.indexOf(p.by)<0)T.buyers.push(p.by);
+ });
+ T.src.forEach(function(s){var k=Object.keys(s.sizes);s.sz=k.length==1?(k[0]?k[0]+" ft":""):k.map(function(f){return s.sizes[f]+" × "+(f?f+" ft":"size not set")}).join(", ")});
+ T.deps.sort(function(a,b){return b.vol-a.vol});
+ return{progs:progs,T:T};
 }
 
-function parse(){
-  const text = $("paste").value; declaredTotal = null; $("rows").innerHTML = "";
-  const keys = {exporter:/^(exporter)\s*[:\-]\s*(.+)$/i, location:/^(location|port|place)\s*[:\-]\s*(.+)$/i, date:/^(program date|date)\s*[:\-]\s*(.+)$/i, buyer:/^(buyer)\s*[:\-]\s*(.+)$/i, depot:/^(depot)\s*[:\-]\s*(.+)$/i};
-  for(const raw of text.split(/\r?\n/)){
-    const line = raw.replace(/^\[[^\]]*\]\s*[^:]*:\s*(?=\w+\s*[:\-])/,"").replace(/[*_]/g,"").trim();
-    if(!line) continue;
-    let hit = false;
-    for(const k in keys){ const m = line.match(keys[k]); if(m){ $(k).value = k==="date" ? (normDate(m[2])||$(k).value) : m[2].trim(); hit = true; break; } }
-    if(hit) continue;
-    const t = line.match(/^(grand\s+)?total\s*[:\-=]?\s*([\d,.]+)/i);
-    if(t){ declaredTotal = parseFloat(t[2].replace(/,/g,"")); continue; }
-    const p = line.split(/\s+[-–|]\s+|\s*\|\s*|\t/).map(s=>s.trim()).filter(Boolean);
-    if(p.length>=3) addRow(p[0],p[1],p[p.length-1].replace(/[^\d.,]/g,""));
-    else if(p.length===2 && /\d/.test(p[1])) addRow("",p[0],p[1].replace(/[^\d.,]/g,""));
-  }
-  if(!$("rows").children.length) addRow();
-  refresh();
+/* ---------- data check ---------- */
+function validate(C){
+ var L=[],T=C.T,seen={};
+ pw.forEach(function(s){L.push(["warn",s])});
+ C.progs.forEach(function(p,i){
+  var nm=p.date?fdate(p.date):"Program "+(i+1);
+  if(!p.date)L.push(["warn",nm+": hand-over date is missing"]);
+  if(p.dp&&st.depots.map(key).indexOf(key(p.dp))<0)L.push(["warn",nm+": depot “"+p.dp+"” is not in your known depots ("+st.depots.join(", ")+"). Typing mistake, or add it to Known depots."]);
+  if(!p.mer)L.push(["warn",nm+": merchandiser is missing"]);
+  if(!p.com)L.push(["warn",nm+": commercial person is missing"]);
+  if(p.stVol!=null&&p.stVol!==""&&Math.abs(num(p.stVol)-p.vol)>0.005)L.push(["err",nm+": your message says "+cbm(num(p.stVol))+" CBM but the ERPs add up to "+cbm(p.vol)+" CBM"]);
+  if(p.stCg!=null&&p.stCg!==""&&Math.round(num(p.stCg))!==p.cg)L.push(["err",nm+": your message says "+Math.round(num(p.stCg))+" cargos but the cargo sources add up to "+p.cg]);
+  if(!p.erps.length)L.push(["warn",nm+": no ERP rows"]);
+  p.erps.forEach(function(e){
+   var k="ERP "+(e.no||"?");
+   if(!e.no)L.push(["warn",nm+": an ERP row has no ERP number"]);
+   if(!num(e.cbm))L.push(["warn",nm+": "+k+" has no CBM"]);
+   if(!(e.fac||"").trim())L.push(["warn",nm+": "+k+" has no LC name"]);
+   var kk=e.no+"|"+key(e.fac)+"|"+p.date;if(e.no){if(seen[kk])L.push(["warn",nm+": "+k+" ("+(e.fac||"no LC")+") appears twice on the same date. Was it pasted twice?"]);seen[kk]=1}
+  });
+  if(!p.cargos.length)L.push(["warn",nm+": no cargo source rows"]);
+  p.cargos.forEach(function(c){
+   if(!(c.name||"").trim())L.push(["warn",nm+": a cargo row has no source name"]);
+   if(!Math.round(num(c.n)))L.push(["warn",nm+": "+(c.name||"a cargo row")+" has no cargo count"]);
+   if(!c.ft)L.push(["warn",nm+": "+(c.name||"a cargo row")+" has no truck size"]);
+  });
+ });
+ T.notes.forEach(function(s){L.push(["note",s])});
+ return L;
+}
+function renderChecks(C){
+ var L=validate(C),T=C.T,e=0,w=0,h="";
+ L.forEach(function(x){if(x[0]=="err")e++;if(x[0]=="warn")w++});lastErr=e;
+ h+=e?'<div class="ck err"><b>✖ '+e+' mismatch'+(e>1?'es':'')+' found. Check before sharing.</b></div>':(w?'<div class="ck warn"><b>⚠ '+w+' item'+(w>1?'s':'')+' to check</b></div>':'<div class="ck ok"><b>✔ All checks passed</b></div>');
+ var sym={err:"✖",warn:"⚠",note:"ℹ"};
+ L.forEach(function(x){h+='<div class="ck '+x[0]+'">'+sym[x[0]]+" "+esc(x[1])+"</div>"});
+ var all=C.progs.length&&C.progs.every(function(p){return p.stVol!==""&&p.stVol!=null&&p.stCg!==""&&p.stCg!=null});
+ var sv=0,sc=0;if(all)C.progs.forEach(function(p){sv+=num(p.stVol);sc+=Math.round(num(p.stCg))});
+ h+='<div class="ck note">Report: '+C.progs.length+' hand-over date(s), '+T.erps+' ERP(s), '+T.fac.length+' LC(s), '+cbm(T.vol)+' CBM, '+T.cg+' cargos.'+(all?(Math.abs(sv-T.vol)<0.005&&sc===T.cg?" Matches the totals in your pasted messages ("+cbm(sv)+" CBM, "+sc+" cargos).":" Your pasted messages total "+cbm(sv)+" CBM and "+sc+" cargos."):" No pasted totals to compare.")+'</div>';
+ $("chk").innerHTML=h;
 }
 
-function refresh(){
-  const r = rows(), sum = r.reduce((s,x)=>s+(isNaN(x.n)?0:x.n),0);
-  const c = $("check"), problems = [];
-  if(!r.length){ c.className="check"; c.textContent="Nothing to check yet."; }
-  else {
-    r.forEach((x,k)=>{ if(isNaN(x.n)) problems.push(`Line ${k+1}: quantity is missing or not a number.`); });
-    F.forEach(f=>{ if(!$(f).value.trim()) problems.push(`${$(f).previousElementSibling.textContent} is empty.`); });
-    if(declaredTotal!==null && Math.abs(declaredTotal-sum)>0.001) problems.push(`Lines add up to ${num(sum)}, but your message says ${num(declaredTotal)}.`);
-    if(problems.length){ c.className="check bad"; c.innerHTML = problems.map(p=>"• "+p).join("<br>"); }
-    else { c.className="check ok"; c.textContent = declaredTotal!==null ? `All good. ${r.length} lines add up to ${num(sum)}, matching your message.` : `${r.length} lines, total ${num(sum)}.`; }
-  }
-  $("out").value = textVersion(r,sum);
-}
-
-const fmtDate = s => s ? new Date(s+"T00:00:00").toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) : "";
-function textVersion(r,sum){
-  const L = ["*Export Program*", `Exporter: ${$("exporter").value}`, `Location: ${$("location").value}`, `Date: ${fmtDate($("date").value)}`, `Buyer: ${$("buyer").value}`, `Depot: ${$("depot").value}`, ""];
-  r.forEach((x,k)=>L.push(`${k+1}. ${x.v} - ${x.i} - ${x.q}`));
-  L.push("", `*Total: ${num(sum)}*`);
-  return L.join("\n");
-}
-
+/* ---------- drawing ---------- */
+var cv=$("cv"),ctx;
+var NAVY="#0E2742",AMB="#F6A21E",BLUE="#2F6FED",TEAL="#17A398",INK="#16202E",MUT="#6B778A",WH="#FFFFFF";
+var PAL=[BLUE,TEAL,"#8B5CF6","#E5484D","#2E9E4F"],SPAL=[NAVY,BLUE,AMB,TEAL,"#8B5CF6","#E5484D"];
+var FAM='Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
+function fn(w,s){return w+" "+s+"px "+FAM}
+function rr(x,y,w,h,r,fill,stroke,lw){ctx.beginPath();ctx.roundRect(x,y,w,h,Math.min(r,h/2,w/2));if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||2;ctx.stroke()}}
+function tx(s,x,y,font,col,al,bs){ctx.font=font;ctx.fillStyle=col;ctx.textAlign=al||"left";ctx.textBaseline=bs||"top";ctx.fillText(s,x,y)}
+function tw(s,font){ctx.font=font;return ctx.measureText(s).width}
+function fit(s,w,sz,wt,min){while(sz>min&&tw(s,fn(wt,sz))>w)sz--;return fn(wt,sz)}
+function seg(x,y,w,h,parts,cols){ctx.save();ctx.beginPath();ctx.roundRect(x,y,w,h,h/2);ctx.clip();var cx=x;parts.forEach(function(p,i){var pw2=w*p;ctx.fillStyle=cols[i%cols.length];ctx.fillRect(cx,y,pw2+1,h);cx+=pw2});ctx.restore()}
+function pl(txt,rx,cy,col,tc,sz){var f=fn(800,sz),w=tw(txt,f)+sz*1.3,h=sz+14;rr(rx-w,cy-h/2,w,h,h/2,col);tx(txt,rx-w/2,cy,f,tc,"center","middle");return w}
 function draw(){
-  const cv = $("cv"), g = cv.getContext("2d"), W = 1080, r = rows(), sum = r.reduce((s,x)=>s+(isNaN(x.n)?0:x.n),0);
-  const maxRows = 12, shown = r.slice(0,maxRows);
-  const H = Math.max(1080, 520 + shown.length*64 + 200); cv.height = H;
-  const bg = g.createLinearGradient(0,0,W,H); bg.addColorStop(0,"#150d2b"); bg.addColorStop(1,"#2a1458");
-  g.fillStyle = bg; g.fillRect(0,0,W,H);
-  g.drawImage(logo,48,40,120,120);
-  g.fillStyle="#fff"; g.font="700 46px system-ui,sans-serif"; g.fillText("Export Program",190,92);
-  g.fillStyle="#9fe8d0"; g.font="500 30px system-ui,sans-serif"; g.fillText(fmtDate($("date").value),190,138);
-  const info = [["Exporter",$("exporter").value],["Location",$("location").value],["Buyer",$("buyer").value],["Depot",$("depot").value]];
-  info.forEach((p,k)=>{ const x = 48 + (k%2)*500, y = 230 + Math.floor(k/2)*90;
-    g.fillStyle="#b5a9de"; g.font="500 24px system-ui,sans-serif"; g.fillText(p[0],x,y);
-    g.fillStyle="#fff"; g.font="600 32px system-ui,sans-serif"; g.fillText(clip(g,p[1],440),x,y+40); });
-  let y = 440;
-  g.fillStyle="rgba(255,255,255,.08)"; g.fillRect(48,y-40,984,56);
-  g.fillStyle="#b5a9de"; g.font="600 24px system-ui,sans-serif"; g.fillText("Vehicle",64,y); g.fillText("Item",360,y); g.textAlign="right"; g.fillText("Quantity",1016,y); g.textAlign="left";
-  shown.forEach((x,k)=>{ y += 64; g.fillStyle = k%2 ? "rgba(255,255,255,.04)" : "rgba(255,255,255,0)"; g.fillRect(48,y-40,984,64);
-    g.fillStyle="#fff"; g.font="500 28px system-ui,sans-serif"; g.fillText(clip(g,x.v,280),64,y); g.fillText(clip(g,x.i,420),360,y); g.textAlign="right"; g.fillText(x.q,1016,y); g.textAlign="left"; });
-  if(r.length>maxRows){ y+=56; g.fillStyle="#b5a9de"; g.font="500 24px system-ui,sans-serif"; g.fillText(`+ ${r.length-maxRows} more lines`,64,y); }
-  y += 90;
-  const bar = g.createLinearGradient(48,0,1032,0); bar.addColorStop(0,"#12b98c"); bar.addColorStop(1,"#2f6df6");
-  g.fillStyle=bar; g.fillRect(48,y-48,984,84);
-  g.fillStyle="#fff"; g.font="700 38px system-ui,sans-serif"; g.fillText("Total",72,y+8); g.textAlign="right"; g.fillText(num(sum),1008,y+8); g.textAlign="left";
+ var C=calc(),T=C.T,P=C.progs,W=1080,m=T.src.length,L=T.fac.length,hs=0;
+ P.forEach(function(p){p.h=138+30*Math.max(1,p.groups.length);hs+=p.h+12});
+ var DPAL=[NAVY,AMB,TEAL,"#8B5CF6",BLUE,"#E5484D"],cardsY=418,secY=cardsY+hs+16,rows=Math.max(m,L,1),dsH=(T.deps.length>1||T.buyers.length>1)?T.deps.length:0,dsY=secY+66+72*rows+14,H=dsY+(dsH?66+72*dsH:-14)+52;
+ cv.width=W*2;cv.height=H*2;ctx=cv.getContext("2d");ctx.setTransform(2,0,0,2,0,0);
+ ctx.fillStyle="#EEF1F6";ctx.fillRect(0,0,W,H);
+ ctx.fillStyle=NAVY;ctx.fillRect(0,0,W,226);
+ ctx.fillStyle="#143559";for(var i=0;i<14;i++){var x=700+i*28;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x+14,0);ctx.lineTo(x-46,226);ctx.lineTo(x-60,226);ctx.fill()}
+ ctx.fillStyle=AMB;ctx.fillRect(0,218,W,8);
+ tx("EXPORT PROGRAM",50,24,fn(900,52),WH);
+ var from=(st.exporter?"From "+st.exporter:"")+(st.exporter&&st.location?"  |  ":"")+(st.location||"");
+ if(from)tx(from,50,88,fit(from,980,30,800,18),AMB);
+ tx("Daily dispatch summary"+(st.programDate?"  |  Program date "+fdate(st.programDate):""),50,128,fn(500,22),"#B9C7DA");
+ var px=50;
+ var bl=T.buyers.length?T.buyers:(st.buyer?[st.buyer]:[]),dl=T.deps.map(function(d){return d.name}).filter(function(x){return x!="-"});if(!dl.length&&st.depot)dl=[st.depot.toUpperCase()];
+ var bt=bl.join(" + ").toUpperCase();if(bt){var bf=fit(bt,470,21,800,13),bw=tw(bt,bf)+48;rr(px,164,bw,44,22,AMB);tx(bt,px+bw/2,186,bf,NAVY,"center","middle");px+=bw+14}
+ var dt=dl.length?"Depot"+(dl.length>1?"s":"")+": "+dl.join(", "):"";if(dt){var df=fit(dt,W-50-px-24,21,700,13),dw=tw(dt,df)+48;rr(px,164,dw,44,22,null,WH,2);tx(dt,px+dw/2,186,df,WH,"center","middle")}
+ var K=[[cbm(T.vol),"CBM total volume",AMB],[String(T.cg),"cargos (trucks)",BLUE],[String(T.erps),"ERP numbers",TEAL]],cw=(W-140)/3,kx=50;
+ K.forEach(function(k){rr(kx,244,cw,104,20,WH);rr(kx,244,9,104,4.5,k[2]);tx(k[0],kx+28,254,fit(k[0],cw-40,50,900,30),INK);tx(k[1],kx+28,312,fn(600,20),MUT);kx+=cw+20});
+ tx("Hand-over schedule",50,368,fn(800,26),INK);
+ var fcol={};T.fac.forEach(function(f,i){fcol[f.name]=PAL[i%PAL.length]});
+ var y=cardsY;
+ P.forEach(function(p){
+  var h=p.h,cy=y+h/2,pv=T.vol?p.vol/T.vol*100:0,cp=T.cg?p.cg/T.cg*100:0,dp=dparts(p.date),G=p.groups;
+  rr(50,y,W-100,h,20,WH);rr(64,y+12,100,h-24,14,NAVY);
+  tx(dp?dp.d:"--",114,cy-24,fn(900,48),WH,"center","middle");tx(dp?MON[dp.m].toUpperCase():"",114,cy+10,fn(700,22),AMB,"center","middle");tx("hand over",114,cy+38,fn(500,15),"#9FB3CC","center","middle");
+  var vs=cbm(p.vol),vf=fn(900,42);tx(vs,186,y+12,vf,INK);tx("CBM",186+tw(vs,vf)+8,y+30,fn(700,21),MUT);
+  var chip=(T.buyers.length>1&&p.by?p.by+" | ":"")+(p.dp||"");if(chip){var cx0=186+tw(vs,vf)+8+tw("CBM",fn(700,21))+16,cf0=fn(700,16),cwd=tw(chip,cf0)+24;rr(cx0,y+16,cwd,28,14,"#DCE6F7");tx(chip,cx0+cwd/2,y+30,cf0,NAVY,"center","middle")}
+  pl(p.cg+" cargo"+(p.cg==1?"":"s")+"  ("+pct(cp)+")",W-66,y+32,AMB,NAVY,19);
+  rr(186,y+68,W-252,12,6,"#E7ECF3");
+  if(p.vol>0)seg(186,y+68,Math.max(20,(W-252)*pv/100),12,G.map(function(g){return g.vol/p.vol}),G.map(function(g){return fcol[g.name]||BLUE}));
+  tx(pct(pv)+" of total volume",W-66,y+92,fn(600,16),MUT,"right");
+  G.forEach(function(g,gi){
+   var gy=y+90+30*gi,cf=fn(700,15),cwid=tw(g.name,cf)+22;
+   rr(186,gy,cwid,24,12,fcol[g.name]||BLUE);tx(g.name,186+cwid/2,gy+12,cf,WH,"center","middle");
+   var et="ERP "+g.items.map(function(it){return it.no+" ("+cbm(it.v)+")"}).join(" | ");
+   tx(et,186+cwid+10,gy+3,fit(et,600-cwid,19,600,13),INK);
+  });
+  var my=y+90+30*Math.max(1,G.length)+6;
+  if(p.mer)tx("Merch: "+p.mer,186,my+2,fn(600,18),INK);
+  if(p.com)tx("Comm: "+p.com,W-66,my+12,fn(600,18),MUT,"right","middle");
+  y+=h+12;
+ });
+ var cx=[50,550],sw=480;
+ tx("Cargo source",cx[0],secY,fn(800,26),INK);
+ rr(cx[0],secY+36,sw,16,8,"#E7ECF3");if(T.cg)seg(cx[0],secY+36,sw,16,T.src.map(function(s){return s.n/T.cg}),SPAL);
+ T.src.forEach(function(s,i){
+  var ry=secY+66+72*i,col=SPAL[i%SPAL.length],rx=cx[0]+sw-14;
+  rr(cx[0],ry,sw,64,16,WH);rr(cx[0],ry,9,64,4.5,col);
+  var w=pl(pct(T.cg?s.n/T.cg*100:0),rx,ry+32,col,col==AMB?NAVY:WH,17);
+  tx(s.n+" cargo"+(s.n==1?"":"s"),rx-w-12,ry+32,fn(700,20),INK,"right","middle");
+  tx(s.name,cx[0]+28,ry+9,fit(s.name,210,22,700,15),INK);tx(s.sz,cx[0]+28,ry+38,fit(s.sz,230,16,500,12),MUT);
+ });
+ tx("LC-wise volume",cx[1],secY,fn(800,26),INK);
+ rr(cx[1],secY+36,sw,16,8,"#E7ECF3");if(T.vol)seg(cx[1],secY+36,sw,16,T.fac.map(function(f){return f.vol/T.vol}),PAL);
+ T.fac.forEach(function(f,i){
+  var ry=secY+66+72*i,col=PAL[i%PAL.length],rx=cx[1]+sw-14;
+  rr(cx[1],ry,sw,64,16,WH);rr(cx[1],ry,9,64,4.5,col);
+  var w=pl(pct(T.vol?f.vol/T.vol*100:0),rx,ry+32,col,WH,17);
+  tx(cbm(f.vol)+" CBM",rx-w-12,ry+32,fn(700,20),INK,"right","middle");
+  tx(f.name,cx[1]+28,ry+9,fit(f.name,210,22,700,15),INK);
+  var et="ERP "+f.erps.join(", ");tx(et,cx[1]+28,ry+38,fit(et,230,16,500,12),MUT);
+ });
+ if(dsH){tx("Depot-wise volume"+(T.buyers.length>1?" (with buyer)":""),50,dsY,fn(800,26),INK);rr(50,dsY+36,W-100,16,8,"#E7ECF3");if(T.vol)seg(50,dsY+36,W-100,16,T.deps.map(function(d){return d.vol/T.vol}),DPAL);
+  T.deps.forEach(function(d,i){var ry=dsY+66+72*i,col=DPAL[i%DPAL.length],rx=W-64;rr(50,ry,W-100,64,16,WH);rr(50,ry,9,64,4.5,col);var w=pl(pct(T.vol?d.vol/T.vol*100:0),rx,ry+32,col,col==AMB?NAVY:WH,17);tx(cbm(d.vol)+" CBM  |  "+d.cg+" cargo"+(d.cg==1?"":"s"),rx-w-14,ry+32,fn(700,20),INK,"right","middle");tx(d.name,78,ry+9,fit(d.name,260,22,700,15),INK);var bs=d.buyers.join(", ");tx(bs,78,ry+38,fit(bs,380,16,500,12),MUT)})}
+ var foot=[st.exporter&&(st.exporter+(st.location?", "+st.location:"")),bl.join(" + "),dl.length&&(dl.join(", ")+" Depot"),"Total "+cbm(T.vol)+" CBM",T.cg+" Cargos"].filter(Boolean).join("  |  ");
+ tx(foot,W/2,H-28,fit(foot,980,17,500,12),MUT,"center","middle");
+ $("wa").value=waText(C);renderChecks(C);
 }
-function clip(g,s,w){ s = s||""; while(g.measureText(s).width>w && s.length>1) s = s.slice(0,-2)+"…"; return s; }
 
-$("fill").onclick = parse;
-$("clear").onclick = () => { $("paste").value=""; F.forEach(f=>$(f).value=""); $("rows").innerHTML=""; declaredTotal=null; addRow(); refresh(); };
-$("add").onclick = () => addRow();
-F.forEach(f => $(f).addEventListener("input", refresh));
-$("make").onclick = draw;
-$("dl").onclick = () => { draw(); const a = document.createElement("a"); a.download = `export-program-${$("date").value||"summary"}.png`; a.href = $("cv").toDataURL("image/png"); a.click(); };
-$("copy").onclick = async e => { try{ await navigator.clipboard.writeText($("out").value); e.target.textContent="Copied"; }catch{ $("out").select(); e.target.textContent="Press Ctrl+C to copy"; } setTimeout(()=>e.target.textContent="Copy text",1800); };
+/* ---------- WhatsApp text ---------- */
+function waText(C){
+ var T=C.T,L=[];
+ L.push("📊 *EXPORT PROGRAM SUMMARY*");
+ if(st.exporter)L.push("🏢 From: "+st.exporter+(st.location?", "+st.location:""));
+ L.push("📅 Program Date: "+fdate(st.programDate));
+ L.push("🛒 Buyer: "+(T.buyers.join(" + ")||st.buyer)+" | 🏭 Depot: "+(T.deps.map(function(d){return d.name}).join(", ")||st.depot),"","━━━━━━━━━━━━━━","📦 *Total Volume:* "+cbm(T.vol)+" CBM","🚛 *Total Cargos:* "+T.cg+" (100%)","📋 *Total ERPs:* "+T.erps,"━━━━━━━━━━━━━━");
+ C.progs.forEach(function(p){
+  L.push("","*📆 "+fdate(p.date)+" (Hand Over)*","📦 "+cbm(p.vol)+" CBM | 🚛 "+p.cg+" Cargo"+(p.cg==1?"":"s")+" ("+pct(T.cg?p.cg/T.cg*100:0)+")");
+  if(T.deps.length>1||T.buyers.length>1)L.push("\uD83D\uDED2 "+p.by+" | \uD83C\uDFED "+p.dp);
+  p.groups.forEach(function(g){L.push("📋 LC "+g.name+": ERP "+g.items.map(function(it){return it.no+" ("+cbm(it.v)+")"}).join(", "))});
+  L.push("👤 "+p.mer+" | 💼 "+p.com);
+ });
+ L.push("","━━━━━━━━━━━━━━","*🚛 Cargo Source*");
+ T.src.forEach(function(s){L.push("• "+s.name+": "+s.n+" Cargos ("+pct(T.cg?s.n/T.cg*100:0)+")"+(s.sz?" – "+s.sz:""))});
+ L.push("","*🏭 LC-wise Volume*");
+ T.fac.forEach(function(f){L.push("• "+f.name+": "+cbm(f.vol)+" CBM ("+pct(T.vol?f.vol/T.vol*100:0)+")")});
+ L.push("━━━━━━━━━━━━━━");
+ return L.join("\n");
+}
+$("cp").onclick=function(){var t=$("wa");t.select();var ok=false;try{ok=document.execCommand("copy")}catch(e){}
+ $("msg").textContent=ok?"Text copied.":"Press and hold the text box to copy it."};
 
-addRow(); refresh();
-logo.onload = draw;
-if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(()=>{});
-</script>
-</body>
-</html>
+/* ---------- download ---------- */
+$("dl").onclick=function(){
+ if(lastErr&&!arm(this,"Mismatch found. Press again to save anyway"))return;
+ $("msg").textContent="";
+ cv.toBlob(async function(blob){
+  var name="Export_Program_"+(st.programDate||"report")+".png";
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},4000);
+  $("msg").textContent="Saved to your Downloads folder as "+name+". If nothing downloaded, press and hold the image and choose Save image.";
+ },"image/png");
+};
+
+renderForm();draw();
+document.querySelectorAll("[data-tab]").forEach(function(b){if(b.tagName!="BUTTON")return;b.addEventListener("click",function(){document.querySelector(".wrap").dataset.tab=b.dataset.tab;$("tin").classList.toggle("on",b.dataset.tab=="in");$("tout").classList.toggle("on",b.dataset.tab=="out");window.scrollTo(0,0)})});
+$("cv").onclick=function(){$("cvw").classList.toggle("z")};
+$("sh").onclick=function(){
+ if(lastErr&&!arm(this,"Problem found. Tap again to share anyway"))return;
+ cv.toBlob(function(b){
+  var f=new File([b],"Export_Program_"+(st.programDate||"report")+".png",{type:"image/png"});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(function(){})}
+  else $("msg").textContent="Sharing is not available in this view. Use Download PNG, or press and hold the image to save it.";
+ },"image/png");
+};
+var dip=null;window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();dip=e;$("inst").style.display="inline-block"});
+$("inst").onclick=function(){if(!dip)return;dip.prompt();dip.userChoice.then(function(){dip=null;$("inst").style.display="none"})};
+window.addEventListener("appinstalled",function(){$("inst").style.display="none"});
+if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
+})();
+</script></body></html>
